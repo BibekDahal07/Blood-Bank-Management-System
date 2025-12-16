@@ -28,7 +28,7 @@ export const registerUser = async (req, res) => {
       messege: "User registered Successfully",
     });
   } catch (e) {
-    res.status(500).josn({
+    res.status(500).json({
       success: false,
       messege: e.messege,
     });
@@ -42,7 +42,7 @@ export const loginUser = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(401).josn({
+      return res.status(401).json({
         success: false,
         messege: "Invalid credentials",
       });
@@ -51,7 +51,7 @@ export const loginUser = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res.status(401).josn({
+      return res.status(401).json({
         success: false,
         messege: "Invalid credentials",
       });
@@ -68,7 +68,7 @@ export const loginUser = async (req, res) => {
       role: user.role,
     });
   } catch (error) {
-    res.status(500).josn({
+    res.status(500).json({
       success: false,
       messege: error.messege,
     });

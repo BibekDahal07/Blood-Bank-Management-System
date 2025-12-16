@@ -1,20 +1,25 @@
 import DonorProfile from "../models/DonorProfile.model.js";
 import DonationRecord from "../models/DonationRecord.model.js";
+import BloodUnit from "../models/BloodUnit.model.js";
 
+const BLOOD_EXPIRY_DAYS = 35;
 const ELIGIBILITY_DAYS = 90;
 
 export const createDonorProfile = async (req, res) => {
   try {
     const existingProfile = await DonorProfile.findOne({ user: req.user._id });
     if (existingProfile) {
-      return res.status(400).json({ message: "Donor profile already exists" });
+      return res.status(400).json({
+        success: false,
+        message: "Donor profile already exists",
+      });
     }
 
     const { bloodGroup } = req.body;
 
     const donorProfile = await DonorProfile.create({
       user: req.user._id,
-      bloodGroup
+      bloodGroup,
     });
 
     res.status(201).json(donorProfile);
@@ -38,7 +43,16 @@ export const donateBlood = async (req, res) => {
 
     await DonationRecord.create({
       donor: donorProfile._id,
-      quantity
+      quantity,
+    });
+
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + BLOOD_EXPIRY_DAYS);
+
+    await BloodUnit.create({
+      bloodGroup: donorProfile.bloodGroup,
+      quantity,
+      expiryDate,
     });
 
     donorProfile.lastDonationDate = new Date();
